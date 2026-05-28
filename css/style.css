@@ -2083,7 +2083,7 @@ textarea.form-control {
   
   /* Footer Stack */
   .footer {
-    padding: 60px 0 24px 0;
+    padding: 60px 0 90px 0; /* 90px bottom padding creates a perfect safe-zone for mobile floating widgets! */
   }
   .footer-grid {
     grid-template-columns: 1fr;
@@ -2102,7 +2102,10 @@ textarea.form-control {
   .footer-bottom-links {
     flex-wrap: wrap;
     justify-content: center;
-    gap: 16px;
+    gap: 12px 24px;
+  }
+  .footer-bottom-links a {
+    white-space: nowrap; /* Prevents word wrapping (e.g. Privacy and Policy on separate lines) */
   }
 }
 
