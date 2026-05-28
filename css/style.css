@@ -1867,13 +1867,26 @@ textarea.form-control {
 
 @media (max-width: 768px) {
   .section {
-    padding: 70px 0;
+    padding: 60px 0;
   }
   .section-header h2 {
-    font-size: 32px;
+    font-size: 30px;
+    margin-bottom: 12px;
+  }
+  .section-header p {
+    font-size: 15px;
+  }
+  .section-header {
+    margin-bottom: 40px;
   }
   
-  /* Header Mobile Drawer */
+  /* Header Mobile Drawer & Logo spacing */
+  .header {
+    padding: 14px 0;
+  }
+  .logo {
+    font-size: 19px;
+  }
   .hamburger {
     display: block;
   }
@@ -1884,13 +1897,13 @@ textarea.form-control {
     position: fixed;
     top: 0;
     right: -100%;
-    width: 300px;
+    width: 280px;
     height: 100vh;
     background-color: var(--white);
     flex-direction: column;
     align-items: flex-start;
-    padding: 100px 40px;
-    gap: 24px;
+    padding: 100px 30px;
+    gap: 20px;
     box-shadow: -10px 0 30px rgba(0, 0, 0, 0.05);
     transition: right var(--transition-normal);
     z-index: 1005;
@@ -1901,114 +1914,212 @@ textarea.form-control {
   .mobile-cta-btn {
     display: inline-flex !important;
     width: 100%;
-    margin-top: 10px;
+    margin-top: 15px;
   }
   
-  /* Hero section mobile */
+  /* Hero section mobile (Overflow Fixes) */
   .hero {
-    padding: 120px 0 70px 0;
+    padding: 110px 0 60px 0;
   }
   .hero-grid {
     grid-template-columns: 1fr;
-    gap: 40px;
+    gap: 30px;
     text-align: center;
   }
   .hero-content {
     align-items: center;
   }
+  .hero h1 {
+    font-size: 38px;
+    line-height: 1.2;
+    margin-bottom: 16px;
+  }
+  .hero p.subheading {
+    font-size: 16px;
+    margin-bottom: 24px;
+  }
   .hero-ctas {
     justify-content: center;
+    gap: 12px;
+    width: 100%;
+  }
+  .hero-ctas .btn {
+    width: 100%;
   }
   .hero-trust-text {
     justify-content: center;
+    font-size: 13px;
+    gap: 10px;
   }
-  .hero-card-1 {
-    left: 0;
+  .hero-trust-text span::after {
+    display: none !important; /* Hide separator on mobile */
   }
-  .hero-card-2 {
-    right: 0;
+  .hero-blob-card {
+    height: 280px;
+    max-width: 360px;
+    margin: 0 auto;
+  }
+  .hero-card-floating {
+    display: none !important; /* Hide floating absolute cards to prevent mobile layout breakages */
   }
   
-  /* Slider Section */
+  /* Slider Section Mobile Refinements (No Arrow Overlaps) */
   .slide {
     grid-template-columns: 1fr;
     min-height: auto;
   }
   .slide-content {
-    padding: 40px;
+    padding: 30px 20px 40px 20px;
+    text-align: center;
+    align-items: center;
+  }
+  .slide-title {
+    font-size: 26px;
+    margin-bottom: 16px;
+  }
+  .slide-desc {
+    font-size: 14px;
+    margin-bottom: 24px;
   }
   .slide-image-container {
-    height: 250px;
+    height: 220px;
+  }
+  .slider-btn {
+    display: none !important; /* Hide side arrows on mobile to prevent text overlapping */
+  }
+  .slider-dots {
+    bottom: 12px;
   }
   
-  /* About Us */
+  /* About Us Mobile Padding */
   .about-grid {
     grid-template-columns: 1fr;
-    gap: 40px;
+    gap: 32px;
+  }
+  .about-card {
+    padding: 24px;
+  }
+  .about-quote {
+    font-size: 17px;
+    margin-bottom: 16px;
   }
   .vm-grid {
     grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .vm-card {
+    padding: 24px;
   }
   
-  /* Why Choose Us & Counters */
+  /* Services Stack (Full Mobile Readability) */
+  .services-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .service-card {
+    padding: 30px 24px;
+  }
+  
+  /* Pricing Grid Mobile */
+  .pricing-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .pricing-card.premium {
+    grid-column: span 1;
+  }
+  .pricing-card {
+    padding: 32px 24px;
+  }
+  
+  /* Why Choose Us & Counters Mobile */
   .why-grid {
     grid-template-columns: 1fr;
-    gap: 40px;
+    gap: 32px;
+  }
+  .why-features {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .why-card {
+    gap: 16px;
   }
   
-  /* Consultation & Form */
+  /* Consultation Form Stack */
   .consultation-grid {
     grid-template-columns: 1fr;
-    gap: 40px;
+    gap: 32px;
   }
   .form-card {
-    padding: 30px 24px;
+    padding: 24px 20px;
   }
   .form-row {
     grid-template-columns: 1fr;
     gap: 0;
   }
   
-  /* Testimonials */
+  /* Testimonials Mobile Scale */
   .testimonial-card {
-    padding: 20px 10px;
+    padding: 10px 5px;
   }
   .google-review-box {
-    padding: 32px 24px;
+    padding: 28px 20px;
+  }
+  .review-body {
+    font-size: 15px;
   }
   
-  /* Footer */
+  /* FAQ Accordion Compact Details */
+  .faq-header {
+    padding: 16px 20px;
+  }
+  .faq-header h3 {
+    font-size: 16px;
+  }
+  .faq-content {
+    padding: 0 20px 20px 20px;
+    font-size: 14px;
+  }
+  
+  /* Footer Stack */
+  .footer {
+    padding: 60px 0 24px 0;
+  }
   .footer-grid {
     grid-template-columns: 1fr;
     gap: 30px;
+    margin-bottom: 40px;
+  }
+  .footer-column h4 {
+    margin-bottom: 16px;
   }
   .footer-bottom {
     flex-direction: column;
     text-align: center;
+    gap: 12px;
+    padding-top: 24px;
+  }
+  .footer-bottom-links {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
   }
 }
 
 @media (max-width: 576px) {
   .hero h1 {
-    font-size: 36px;
+    font-size: 32px;
+  }
+  .hero-blob-card {
+    height: 240px;
+    max-width: 280px;
   }
   .slide-title {
-    font-size: 28px;
-  }
-  .services-grid {
-    grid-template-columns: 1fr;
-  }
-  .pricing-grid {
-    grid-template-columns: 1fr;
-  }
-  .pricing-card.premium {
-    grid-column: span 1;
-  }
-  .why-features {
-    grid-template-columns: 1fr;
+    font-size: 22px;
   }
   .stats-grid {
     grid-template-columns: 1fr;
+    gap: 16px;
   }
   .back-to-top {
     left: 20px;
