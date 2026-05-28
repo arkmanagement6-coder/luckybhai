@@ -316,6 +316,11 @@ img {
   font-size: 22px;
   color: var(--dark);
   letter-spacing: -0.5px;
+  white-space: nowrap;
+}
+
+.mobile-cta-btn {
+  display: none;
 }
 
 .logo-dot {
@@ -1892,6 +1897,11 @@ textarea.form-control {
   }
   .nav.open {
     right: 0;
+  }
+  .mobile-cta-btn {
+    display: inline-flex !important;
+    width: 100%;
+    margin-top: 10px;
   }
   
   /* Hero section mobile */
