@@ -1,5 +1,5 @@
 /* 
-  Rank with Lucky - Interactive Script System
+  Lucky Digital Media - Interactive Script System
   Author: Antigravity AI
 */
 
@@ -421,7 +421,7 @@ window.handleLeadSubmit = function(event) {
     // Fallback: If user explicitly wants local email client delivery, we can trigger mailto construct:
     const mailtoSubject = encodeURIComponent(`Growth Consultation - ${leadData.name}`);
     const mailtoBody = encodeURIComponent(
-      `Rank with Lucky - Consultation Request Details:\n\n` +
+      `Lucky Digital Media - Consultation Request Details:\n\n` +
       `Full Name: ${leadData.name}\n` +
       `Mobile: ${leadData.phone}\n` +
       `Email: ${leadData.email}\n` +
@@ -430,8 +430,9 @@ window.handleLeadSubmit = function(event) {
       `Client Message:\n${leadData.message}`
     );
     
-    // We open a mailto trigger so the user can easily hit send to info@rankwithlucky.com
-    window.location.href = `mailto:info@rankwithlucky.com?subject=${mailtoSubject}&body=${mailtoBody}`;
+    // We open a mailto trigger so the user can easily hit send to info@luckydigitalmedia.in
+    window.location.href = `mailto:info@luckydigitalmedia.in?subject=${mailtoSubject}&body=${mailtoBody}`;
 
   }, 1500); // 1.5 seconds loading simulation for modern tech feel
 };
+
