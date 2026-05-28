@@ -2022,3 +2022,72 @@ textarea.form-control {
     font-size: 26px;
   }
 }
+
+/* --- POLICY CONTENT PAGES --- */
+.policy-content-box {
+  background-color: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 60px 48px;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-color);
+  margin-top: 40px;
+}
+
+.policy-content-box h2 {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--dark);
+  margin: 40px 0 20px 0;
+  position: relative;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.policy-content-box h2:first-of-type {
+  margin-top: 0;
+}
+
+.policy-content-box p {
+  font-size: 15px;
+  color: var(--text-muted);
+  line-height: 1.7;
+  margin-bottom: 20px;
+}
+
+.policy-content-box ul {
+  margin-bottom: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.policy-content-box ul li {
+  font-size: 15px;
+  color: var(--text-muted);
+  position: relative;
+  padding-left: 28px;
+  line-height: 1.6;
+}
+
+.policy-content-box ul li::before {
+  content: '\f058'; /* FontAwesome check-circle */
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  color: var(--primary);
+  position: absolute;
+  left: 0;
+  top: 2px;
+  font-size: 15px;
+}
+
+@media (max-width: 768px) {
+  .policy-content-box {
+    padding: 36px 24px;
+    margin-top: 24px;
+  }
+  .policy-content-box h2 {
+    font-size: 19px;
+    margin: 32px 0 16px 0;
+  }
+}
+
