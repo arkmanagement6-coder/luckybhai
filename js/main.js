@@ -321,7 +321,7 @@ window.selectPricing = function(packageName) {
   if (packageName.includes('Starter')) {
     serviceDropdown.value = 'Search Engine Optimization (SEO)';
   } else if (packageName.includes('Growth')) {
-    serviceDropdown.value = 'Social Media Marketing';
+    serviceDropdown.value = 'Complete Digital Marketing';
   } else if (packageName.includes('Premium')) {
     serviceDropdown.value = 'Complete Digital Marketing';
   }
