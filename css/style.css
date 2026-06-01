@@ -624,12 +624,12 @@ img {
 
 .slider-container {
   display: flex;
-  width: 300%; /* For 3 slides */
+  width: 400%; /* For 4 slides */
   transition: transform var(--transition-slow);
 }
 
 .slide {
-  width: 33.3333%;
+  width: 25%;
   position: relative;
   min-height: 520px;
   display: grid;

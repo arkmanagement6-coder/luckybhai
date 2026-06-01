@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let sliderAutoInterval;
 
   function updateSliderPosition() {
-    sliderContainer.style.transform = `translateX(-${currentSlideIndex * 33.3333}%)`;
+    sliderContainer.style.transform = `translateX(-${currentSlideIndex * 25}%)`;
     
     // Update active dots
     sliderDots.forEach((dot, index) => {
@@ -318,12 +318,12 @@ window.selectPricing = function(packageName) {
   const serviceDropdown = document.getElementById('serviceInterested');
   if (!serviceDropdown) return;
 
-  if (packageName.includes('Starter')) {
-    serviceDropdown.value = 'Search Engine Optimization (SEO)';
-  } else if (packageName.includes('Growth')) {
-    serviceDropdown.value = 'Complete Digital Marketing';
-  } else if (packageName.includes('Premium')) {
-    serviceDropdown.value = 'Complete Digital Marketing';
+  if (packageName.includes('Silver')) {
+    serviceDropdown.value = 'Birthday Shoot';
+  } else if (packageName.includes('Gold')) {
+    serviceDropdown.value = 'Pre-Wedding Shoot';
+  } else if (packageName.includes('Platinum')) {
+    serviceDropdown.value = 'Wedding Shots';
   }
 
   // Smooth scroll down to consultation form section
@@ -372,7 +372,7 @@ window.handleLeadSubmit = function(event) {
     name: fullName,
     phone: mobile,
     email: email,
-    company: business || 'N/A',
+    eventDetails: business || 'N/A',
     service: service || 'Not Selected',
     message: message
   };
@@ -419,15 +419,15 @@ window.handleLeadSubmit = function(event) {
     }, 8000);
 
     // Fallback: If user explicitly wants local email client delivery, we can trigger mailto construct:
-    const mailtoSubject = encodeURIComponent(`Growth Consultation - ${leadData.name}`);
+    const mailtoSubject = encodeURIComponent(`Photography Booking Inquiry - ${leadData.name}`);
     const mailtoBody = encodeURIComponent(
-      `Lucky Digital Media - Consultation Request Details:\n\n` +
+      `Lucky Digital Media - Photo Shoot Booking Details:\n\n` +
       `Full Name: ${leadData.name}\n` +
       `Mobile: ${leadData.phone}\n` +
       `Email: ${leadData.email}\n` +
-      `Business: ${leadData.company}\n` +
-      `Service: ${leadData.service}\n\n` +
-      `Client Message:\n${leadData.message}`
+      `Event Date & Venue: ${leadData.eventDetails}\n` +
+      `Service Selected: ${leadData.service}\n\n` +
+      `Event Details / Message:\n${leadData.message}`
     );
     
     // We open a mailto trigger so the user can easily hit send to info@luckydigitalmedia.in
