@@ -644,6 +644,20 @@ window.submitCustomPayment = function() {
     return;
   }
 
+  // Validate mobile number format (Exactly 10 digits)
+  const phoneReg = /^[0-9]{10}$/;
+  if (!phoneReg.test(phone)) {
+    alert("Please enter a valid 10-digit mobile number (e.g., 9300241235).");
+    return;
+  }
+
+  // Validate email format syntax
+  const emailReg = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailReg.test(email)) {
+    alert("Please enter a valid email address (e.g., info@luckydigitalmedia.in).");
+    return;
+  }
+
   const amount = parseFloat(amountVal);
   if (isNaN(amount) || amount <= 0) {
     alert("Please enter a valid positive payment amount.");
