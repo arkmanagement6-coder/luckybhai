@@ -484,7 +484,13 @@ window.confirmPaymentChoice = function() {
       })
       .catch(error => {
         console.error("Order creation failed, falling back to manual booking:", error);
-        alert("Online payment server is offline/unavailable. Your booking details will be submitted manually instead.");
+        alert(
+          "Payment Gateway Offline:\n" +
+          error.message + "\n\n" +
+          "How to resolve:\n" +
+          "1. If you are hosting on GitHub Pages, backend scripts (Node/PHP) cannot execute. Please host your repo on Vercel or Netlify (both are free and support our serverless handlers).\n" +
+          "2. If you are already on Vercel/PHP hosting, ensure you configured the environment variable CASHFREE_CLIENT_SECRET in your hosting provider's dashboard."
+        );
         window.processManualBooking(leadData, submitBtn, originalBtnHTML);
       });
   }
@@ -501,6 +507,8 @@ window.createCashfreeOrder = async function(leadData) {
     returnUrl: window.location.href // Redirect back here on payment completion
   };
 
+  let errors = [];
+
   // 1. Attempt Vercel Serverless Function First
   try {
     const response = await fetch('/api/create-order', {
@@ -508,9 +516,14 @@ window.createCashfreeOrder = async function(leadData) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(requestPayload)
     });
-    if (response.ok) return await response.json();
+    if (response.ok) {
+      return await response.json();
+    } else {
+      const errData = await response.json().catch(() => ({}));
+      errors.push(`- Vercel Serverless: [Status ${response.status}] ${errData.error || 'Server error'}`);
+    }
   } catch(e) {
-    console.warn("Vercel Serverless Endpoint not found, trying PHP fallback...", e);
+    errors.push(`- Vercel Serverless: [Network/CORS Error] ${e.message}`);
   }
 
   // 2. Attempt PHP Script Fallback Second
@@ -520,12 +533,17 @@ window.createCashfreeOrder = async function(leadData) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(requestPayload)
     });
-    if (response.ok) return await response.json();
+    if (response.ok) {
+      return await response.json();
+    } else {
+      const errData = await response.json().catch(() => ({}));
+      errors.push(`- PHP Backend: [Status ${response.status}] ${errData.error || 'Server error'}`);
+    }
   } catch(e) {
-    console.warn("PHP Fallback failed or CORS error, trying direct backend...", e);
+    errors.push(`- PHP Backend: [Network/CORS Error] ${e.message}`);
   }
 
-  throw new Error("All payment endpoints are unreachable (pure static deployment)");
+  throw new Error(errors.join('\n'));
 };
 
 // Standard manual submission action
@@ -674,7 +692,13 @@ window.submitCustomPayment = function() {
     })
     .catch(error => {
       console.error("Custom order creation failed:", error);
-      alert("Online payment server is offline/unavailable. Please contact Lucky Jat direct at 9300241235 for custom transfers.");
+      alert(
+        "Payment Gateway Offline:\n" +
+        error.message + "\n\n" +
+        "How to resolve:\n" +
+        "1. If you are hosting on GitHub Pages, backend scripts (Node/PHP) cannot execute. Please host your repo on Vercel or Netlify (both are free and support our serverless handlers).\n" +
+        "2. If you are already on Vercel/PHP hosting, ensure you configured the environment variable CASHFREE_CLIENT_SECRET in your hosting provider's dashboard."
+      );
       payBtn.disabled = false;
       payBtn.innerHTML = originalBtnHTML;
     });
