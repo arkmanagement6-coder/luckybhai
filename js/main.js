@@ -583,3 +583,100 @@ window.processManualBooking = function(leadData, submitBtn, originalBtnHTML) {
 
   }, 1500); // 1.5 seconds loading simulation for modern tech feel
 };
+
+// ===========================================================================
+// 12. QUICK CUSTOM PAYMENT CONTROL SYSTEM
+// ===========================================================================
+window.openCustomPaymentModal = function() {
+  const modal = document.getElementById('customPaymentModal');
+  if (modal) {
+    // Reset form inputs
+    document.getElementById('customPayName').value = '';
+    document.getElementById('customPayPhone').value = '';
+    document.getElementById('customPayEmail').value = '';
+    document.getElementById('customPayPurpose').value = '';
+    document.getElementById('customPayAmount').value = '';
+
+    modal.style.display = 'flex';
+    // Force browser repaint to trigger CSS animation
+    modal.offsetHeight;
+    modal.classList.add('show');
+  }
+};
+
+window.closeCustomPaymentModal = function() {
+  const modal = document.getElementById('customPaymentModal');
+  if (modal) {
+    modal.classList.remove('show');
+    setTimeout(() => {
+      modal.style.display = 'none';
+    }, 400);
+  }
+};
+
+window.submitCustomPayment = function() {
+  const fullName = document.getElementById('customPayName').value.trim();
+  const phone = document.getElementById('customPayPhone').value.trim();
+  const email = document.getElementById('customPayEmail').value.trim();
+  const purpose = document.getElementById('customPayPurpose').value.trim();
+  const amountVal = document.getElementById('customPayAmount').value.trim();
+
+  if (!fullName || !phone || !email || !purpose || !amountVal) {
+    alert("Please fill out all required fields marked with *");
+    return;
+  }
+
+  const amount = parseFloat(amountVal);
+  if (isNaN(amount) || amount <= 0) {
+    alert("Please enter a valid positive payment amount.");
+    return;
+  }
+
+  const payBtn = document.getElementById('btnConfirmCustomPay');
+  const originalBtnHTML = payBtn.innerHTML;
+  
+  payBtn.disabled = true;
+  payBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Initiating Payment...';
+
+  // Construct structured data object to send to backend API
+  const paymentData = {
+    name: fullName,
+    phone: phone,
+    email: email,
+    amount: amount,
+    service: "Custom Payment",
+    planName: `Custom Payment: ${purpose}`,
+    eventDetails: `Purpose: ${purpose}`
+  };
+
+  // Trigger backend API call to generate Cashfree Order Token
+  window.createCashfreeOrder(paymentData)
+    .then(responseData => {
+      if (!responseData || !responseData.payment_session_id) {
+        throw new Error("Invalid checkout response");
+      }
+      
+      payBtn.innerHTML = '<i class="fas fa-check-circle"></i> Opening Checkout...';
+      
+      // Close custom payment modal before redirecting
+      window.closeCustomPaymentModal();
+      
+      if (cashfree) {
+        cashfree.checkout({
+          paymentSessionId: responseData.payment_session_id,
+          redirectTarget: "_self"
+        });
+      } else {
+        alert("Payment gateway SDK is blocked. Please try again or contact support.");
+        payBtn.disabled = false;
+        payBtn.innerHTML = originalBtnHTML;
+      }
+    })
+    .catch(error => {
+      console.error("Custom order creation failed:", error);
+      alert("Online payment server is offline/unavailable. Please contact Lucky Jat direct at 9300241235 for custom transfers.");
+      payBtn.disabled = false;
+      payBtn.innerHTML = originalBtnHTML;
+    });
+};
+

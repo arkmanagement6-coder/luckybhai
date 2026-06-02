@@ -796,6 +796,9 @@
           <span class="logo-dot"></span>Lucky Digital Media
         </a>
         <p class="footer-desc">Lucky Digital Media is a premium photography and videography studio based in Indore. We capture life's special occasions with high-end cinematic style, creating beautiful, lasting memories. This website is operated by Lucky Jat.</p>
+        <button class="btn btn-primary" onclick="openCustomPaymentModal()" style="margin-top: 20px; font-size: 14px; padding: 12px 20px; gap: 8px;">
+          <i class="fas fa-wallet"></i> Pay Custom Amount
+        </button>
       </div>
       
       <div class="footer-column">
@@ -908,6 +911,55 @@
       <div class="payment-modal-footer">
         <button class="btn btn-primary" id="btnConfirmBooking" onclick="confirmPaymentChoice()" style="width: 100%; border-radius: var(--radius-sm); font-size: 16px; padding: 16px;">
           Proceed to Checkout <i class="fas fa-arrow-right" style="margin-left: 6px;"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cashfree Custom Payment Amount Modal Overlay -->
+  <div id="customPaymentModal" class="payment-modal-overlay">
+    <div class="payment-modal-card">
+      <button class="payment-modal-close" onclick="closeCustomPaymentModal()">&times;</button>
+      <div class="payment-modal-header">
+        <div class="payment-modal-icon"><i class="fas fa-money-bill-transfer"></i></div>
+        <h3>Make Custom Payment</h3>
+        <p>Pay any package balance or deposit directly to Lucky Digital Media</p>
+      </div>
+      
+      <div class="payment-modal-body">
+        <div class="form-group" style="margin-bottom: 16px; display: flex; flex-direction: column; align-items: flex-start;">
+          <label class="form-label" for="customPayName">Full Name *</label>
+          <input type="text" id="customPayName" class="form-control" placeholder="Enter your full name" style="width: 100%;" required>
+        </div>
+        
+        <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; width: 100%;">
+          <div class="form-group" style="display: flex; flex-direction: column; align-items: flex-start;">
+            <label class="form-label" for="customPayPhone">Mobile Number *</label>
+            <input type="tel" id="customPayPhone" class="form-control" placeholder="10-digit mobile" pattern="[0-9]{10}" style="width: 100%;" required>
+          </div>
+          <div class="form-group" style="display: flex; flex-direction: column; align-items: flex-start;">
+            <label class="form-label" for="customPayEmail">Email Address *</label>
+            <input type="email" id="customPayEmail" class="form-control" placeholder="Enter email" style="width: 100%;" required>
+          </div>
+        </div>
+        
+        <div class="form-group" style="margin-bottom: 16px; display: flex; flex-direction: column; align-items: flex-start;">
+          <label class="form-label" for="customPayPurpose">Purpose of Payment *</label>
+          <input type="text" id="customPayPurpose" class="form-control" placeholder="e.g., Shoot Balance / Wedding Advance Booking" style="width: 100%;" required>
+        </div>
+        
+        <div class="form-group" style="margin-bottom: 16px; display: flex; flex-direction: column; align-items: flex-start;">
+          <label class="form-label" for="customPayAmount">Amount to Pay (INR) *</label>
+          <div style="position: relative; width: 100%;">
+            <span style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-weight: 700; color: var(--dark);">₹</span>
+            <input type="number" id="customPayAmount" class="form-control" placeholder="Enter custom amount" min="1" style="padding-left: 32px; width: 100%;" required>
+          </div>
+        </div>
+      </div>
+      
+      <div class="payment-modal-footer">
+        <button class="btn btn-primary" id="btnConfirmCustomPay" onclick="submitCustomPayment()" style="width: 100%; border-radius: var(--radius-sm); font-size: 16px; padding: 16px;">
+          Pay Securely Now <i class="fas fa-shield-halved" style="margin-left: 6px;"></i>
         </button>
       </div>
     </div>
