@@ -340,13 +340,49 @@ window.selectPricing = function(packageName) {
 };
 
 // ===========================================================================
-// 11. LEAD CAPTURE FORM VALIDATION & SIMULATED SUBMIT
+// 11. LEAD CAPTURE FORM VALIDATION & CASHFREE PAYMENT WORKFLOW
 // ===========================================================================
+let cashfree;
+try {
+  cashfree = Cashfree({
+    mode: "production" // Cashfree keys are cfsk_ma_prod_ which signifies Production
+  });
+} catch (e) {
+  console.warn("Cashfree JS SDK failed to load or initialize.", e);
+}
+
+// Payment Choice State Configuration
+window.selectedPaymentType = "online";
+window.currentLeadData = null;
+
+window.closePaymentModal = function() {
+  const modal = document.getElementById('paymentModal');
+  if (modal) {
+    modal.classList.remove('show');
+    setTimeout(() => {
+      modal.style.display = 'none';
+    }, 400);
+  }
+};
+
+window.selectPaymentOption = function(type) {
+  window.selectedPaymentType = type;
+  const onlineCard = document.getElementById('optionOnline');
+  const offlineCard = document.getElementById('optionOffline');
+  
+  if (type === 'online') {
+    onlineCard.classList.add('active');
+    offlineCard.classList.remove('active');
+  } else {
+    offlineCard.classList.add('active');
+    onlineCard.classList.remove('active');
+  }
+};
+
 window.handleLeadSubmit = function(event) {
   event.preventDefault();
   
   const form = document.getElementById('leadForm');
-  const successAlert = document.getElementById('formSuccess');
   
   // Basic validation checks
   const fullName = document.getElementById('fullName').value.trim();
@@ -356,36 +392,147 @@ window.handleLeadSubmit = function(event) {
   const business = document.getElementById('businessName').value.trim();
   const service = document.getElementById('serviceInterested').value;
 
-  if (!fullName || !mobile || !email || !message) {
-    alert("Please fill out all required fields marked with *");
+  if (!fullName || !mobile || !email || !message || !service) {
+    alert("Please fill out all required fields and select a Service Type.");
     return;
   }
 
-  // Display submit loading state on button
-  const submitBtn = form.querySelector('.form-submit-btn');
-  const originalBtnHTML = submitBtn.innerHTML;
-  submitBtn.disabled = true;
-  submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting Request...';
+  // Calculate pricing values based on selected plan
+  let depositAmount = 5000;
+  let planName = "Silver Plan - Birthday Shoot";
 
-  // Construct structured data object to simulate sending leads
-  const leadData = {
+  if (service === "Wedding Shots") {
+    depositAmount = 25000;
+    planName = "Platinum Plan - Wedding Shots";
+  } else if (service === "Pre-Wedding Shoot") {
+    depositAmount = 12000;
+    planName = "Gold Plan - Pre-Wedding Shoot";
+  } else if (service === "Event Coverage") {
+    depositAmount = 10000;
+    planName = "Gold Plan - Event Coverage";
+  } else if (service === "Birthday Shoot") {
+    depositAmount = 5000;
+    planName = "Silver Plan - Birthday Shoot";
+  }
+
+  // Store data in global lead holder
+  window.currentLeadData = {
     name: fullName,
     phone: mobile,
     email: email,
     eventDetails: business || 'N/A',
     service: service || 'Not Selected',
-    message: message
+    message: message,
+    amount: depositAmount,
+    planName: planName
   };
 
-  console.log('Lead request captured:', leadData);
+  // Render text values inside payment confirmation modal
+  document.getElementById('modalPlanName').textContent = planName;
+  document.getElementById('modalDepositAmount').textContent = `₹${depositAmount.toLocaleString('en-IN')}`;
 
-  // We perform an asynchronous Formspree submission or mailto redirect setup.
-  // To keep the user experience premium, we will:
-  // 1. Submit the form asynchronously using fetch (via a standard form post endpoint, or locally log it).
-  // 2. Display our custom animated success banner.
-  // 3. Highlight the conversion success.
-  // 4. Trigger mailto in background if fallback is needed, but inline success is MUCH more modern!
+  // Launch Payment Modal with animations
+  const modal = document.getElementById('paymentModal');
+  if (modal) {
+    modal.style.display = 'flex';
+    // Force a browser reflow/repaint to trigger CSS transition
+    modal.offsetHeight;
+    modal.classList.add('show');
+  }
+};
+
+// Process checkout or manual booking fallback based on customer decision
+window.confirmPaymentChoice = function() {
+  window.closePaymentModal();
   
+  const leadData = window.currentLeadData;
+  if (!leadData) return;
+
+  const form = document.getElementById('leadForm');
+  const submitBtn = form.querySelector('.form-submit-btn');
+  const originalBtnHTML = submitBtn.innerHTML;
+
+  submitBtn.disabled = true;
+  submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing Booking...';
+
+  if (window.selectedPaymentType === 'offline') {
+    // Process manual booking details
+    window.processManualBooking(leadData, submitBtn, originalBtnHTML);
+  } else {
+    // Process Online Cashfree Checkout
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Initiating Payment...';
+    
+    // We try to call Vercel function first, if that fails we try PHP endpoint, if both fail we fallback to manual
+    window.createCashfreeOrder(leadData)
+      .then(responseData => {
+        if (!responseData || !responseData.payment_session_id) {
+          throw new Error("Invalid payment session id returned from server");
+        }
+        
+        // Success: Redirect user to Cashfree Checkout window
+        submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> Opening Checkout...';
+        if (cashfree) {
+          cashfree.checkout({
+            paymentSessionId: responseData.payment_session_id,
+            redirectTarget: "_self" // opens in same frame
+          });
+        } else {
+          // If Cashfree library was blocked/not loaded
+          alert("Payment gateway SDK is blocked. Redirecting to manual booking...");
+          window.processManualBooking(leadData, submitBtn, originalBtnHTML);
+        }
+      })
+      .catch(error => {
+        console.error("Order creation failed, falling back to manual booking:", error);
+        alert("Online payment server is offline/unavailable. Your booking details will be submitted manually instead.");
+        window.processManualBooking(leadData, submitBtn, originalBtnHTML);
+      });
+  }
+};
+
+// Securely invoke Backend Endpoints to generate order token
+window.createCashfreeOrder = async function(leadData) {
+  // Setup payload matching our api schemas
+  const requestPayload = {
+    amount: leadData.amount,
+    customerName: leadData.name,
+    customerPhone: leadData.phone,
+    customerEmail: leadData.email,
+    returnUrl: window.location.href // Redirect back here on payment completion
+  };
+
+  // 1. Attempt Vercel Serverless Function First
+  try {
+    const response = await fetch('/api/create-order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(requestPayload)
+    });
+    if (response.ok) return await response.json();
+  } catch(e) {
+    console.warn("Vercel Serverless Endpoint not found, trying PHP fallback...", e);
+  }
+
+  // 2. Attempt PHP Script Fallback Second
+  try {
+    const response = await fetch('create_order.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(requestPayload)
+    });
+    if (response.ok) return await response.json();
+  } catch(e) {
+    console.warn("PHP Fallback failed or CORS error, trying direct backend...", e);
+  }
+
+  throw new Error("All payment endpoints are unreachable (pure static deployment)");
+};
+
+// Standard manual submission action
+window.processManualBooking = function(leadData, submitBtn, originalBtnHTML) {
+  const form = document.getElementById('leadForm');
+  const successAlert = document.getElementById('formSuccess');
+
   setTimeout(() => {
     // Hide form scroll and show success alert
     successAlert.style.display = 'flex';
@@ -403,7 +550,6 @@ window.handleLeadSubmit = function(event) {
 
     // Automatically hide success alert after 8 seconds
     setTimeout(() => {
-      successAlert.style.style = 'none';
       // Fade it out
       let opacity = 1;
       const fadeInterval = setInterval(() => {
@@ -426,7 +572,9 @@ window.handleLeadSubmit = function(event) {
       `Mobile: ${leadData.phone}\n` +
       `Email: ${leadData.email}\n` +
       `Event Date & Venue: ${leadData.eventDetails}\n` +
-      `Service Selected: ${leadData.service}\n\n` +
+      `Service Selected: ${leadData.service}\n` +
+      `Selected Plan: ${leadData.planName}\n` +
+      `Deposit Due (Offline): INR ${leadData.amount.toLocaleString('en-IN')}\n\n` +
       `Event Details / Message:\n${leadData.message}`
     );
     
@@ -435,4 +583,3 @@ window.handleLeadSubmit = function(event) {
 
   }, 1500); // 1.5 seconds loading simulation for modern tech feel
 };
-
