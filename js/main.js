@@ -647,7 +647,7 @@ window.submitCustomPayment = function() {
   // Validate mobile number format (Exactly 10 digits)
   const phoneReg = /^[0-9]{10}$/;
   if (!phoneReg.test(phone)) {
-    alert("Please enter a valid 10-digit mobile number (e.g., 9300241235).");
+    alert("Please enter a valid 10-digit mobile number.");
     return;
   }
 
