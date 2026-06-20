@@ -60,21 +60,23 @@ $secretKey = getenv('SABPAISA_SECRET_KEY') ?: implode('', $secretKeyParts);
 
 // Generate unique transaction and timestamp reference
 $merchantTxnId = "txn_" . time() . "_" . rand(100, 999);
-$timestamp = round(microtime(true) * 1000);
+
+// Unix timestamp in SECONDS (integer)
+$timestamp = time();
 $currency = "INR";
 
-// Format amount to 2 decimal places to ensure consistent checksum calculation
-$formattedAmount = number_format((float)$amount, 2, '.', '');
+// Convert amount to Paise (integer)
+$amountInPaise = intval(round(floatval($amount) * 100));
 
-// Generate HMAC-SHA256 checksum: merchantId|merchantTxnId|amount|currency|timestamp
-$message = $merchantId . "|" . $merchantTxnId . "|" . $formattedAmount . "|" . $currency . "|" . $timestamp;
+// Generate HMAC-SHA256 checksum: merchantId|merchantTxnId|amount_in_paise|currency|timestamp_in_seconds
+$message = $merchantId . "|" . $merchantTxnId . "|" . $amountInPaise . "|" . $currency . "|" . $timestamp;
 $checksum = hash_hmac('sha256', $message, $secretKey);
 
 // Prepare SabPaisa PG 3.0 API Schema Payload
 $payload = [
     "merchantId" => $merchantId,
     "merchantTxnId" => $merchantTxnId,
-    "amount" => floatval($formattedAmount),
+    "amount" => $amountInPaise,
     "currency" => $currency,
     "customerName" => $customerName,
     "customerEmail" => $customerEmail,

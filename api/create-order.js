@@ -48,21 +48,23 @@ module.exports = async function handler(req, res) {
 
     // Generate unique transaction reference
     const merchantTxnId = `txn_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
-    const timestamp = Date.now();
+    
+    // Unix timestamp in SECONDS (integer)
+    const timestamp = Math.floor(Date.now() / 1000);
     const currency = 'INR';
     
-    // Format amount to 2 decimal places to ensure consistent checksum calculation
-    const formattedAmount = parseFloat(amount).toFixed(2);
+    // Convert amount from Rupees to Paise (integer)
+    const amountInPaise = Math.round(parseFloat(amount) * 100);
 
-    // Generate HMAC-SHA256 checksum: merchantId|merchantTxnId|amount|currency|timestamp
-    const message = `${merchantId}|${merchantTxnId}|${formattedAmount}|${currency}|${timestamp}`;
+    // Generate HMAC-SHA256 checksum: merchantId|merchantTxnId|amount_in_paise|currency|timestamp_in_seconds
+    const message = `${merchantId}|${merchantTxnId}|${amountInPaise}|${currency}|${timestamp}`;
     const checksum = crypto.createHmac('sha256', secretKey).update(message).digest('hex');
 
     // SabPaisa PG 3.0 API Schema Payload
     const requestPayload = {
       merchantId: merchantId,
       merchantTxnId: merchantTxnId,
-      amount: parseFloat(formattedAmount),
+      amount: amountInPaise,
       currency: currency,
       customerName: customerName || 'Valued Client',
       customerEmail: customerEmail || 'info@luckydigitalmedia.in',
