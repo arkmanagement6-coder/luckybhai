@@ -93,9 +93,25 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    // Success response containing the checkoutUrl for redirection
+    // Extract checkoutUrl and clientSecret to construct the correct redirection URL
+    const rawCheckoutUrl = responseData.checkoutUrl;
+    const clientSecret = responseData.clientSecret;
+
+    if (!rawCheckoutUrl || !clientSecret) {
+      return res.status(500).json({
+        error: 'Invalid response payload from SabPaisa gateway (missing checkoutUrl or clientSecret)',
+        details: responseData
+      });
+    }
+
+    // Append clientSecret as a query parameter
+    const finalCheckoutUrl = rawCheckoutUrl.includes('?')
+      ? `${rawCheckoutUrl}&clientSecret=${clientSecret}`
+      : `${rawCheckoutUrl}?clientSecret=${clientSecret}`;
+
+    // Success response containing the authenticated checkoutUrl for redirection
     return res.status(200).json({
-      checkoutUrl: responseData.checkoutUrl,
+      checkoutUrl: finalCheckoutUrl,
       merchantTxnId: merchantTxnId
     });
 

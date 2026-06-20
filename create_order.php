@@ -122,9 +122,26 @@ if ($err) {
             "details" => $resData
         ]);
     } else {
+        $rawCheckoutUrl = isset($resData['checkoutUrl']) ? $resData['checkoutUrl'] : null;
+        $clientSecret = isset($resData['clientSecret']) ? $resData['clientSecret'] : null;
+
+        if (!$rawCheckoutUrl || !$clientSecret) {
+            http_response_code(500);
+            echo json_encode([
+                "error" => "Invalid response payload from SabPaisa gateway (missing checkoutUrl or clientSecret)",
+                "details" => $resData
+            ]);
+            exit;
+        }
+
+        // Append clientSecret as query parameter
+        $finalCheckoutUrl = (strpos($rawCheckoutUrl, '?') !== false) 
+            ? $rawCheckoutUrl . "&clientSecret=" . $clientSecret
+            : $rawCheckoutUrl . "?clientSecret=" . $clientSecret;
+
         http_response_code(200);
         echo json_encode([
-            "checkoutUrl" => $resData['checkoutUrl'],
+            "checkoutUrl" => $finalCheckoutUrl,
             "merchantTxnId" => $merchantTxnId
         ]);
     }
