@@ -340,16 +340,9 @@ window.selectPricing = function(packageName) {
 };
 
 // ===========================================================================
-// 11. LEAD CAPTURE FORM VALIDATION & CASHFREE PAYMENT WORKFLOW
+// 11. LEAD CAPTURE FORM VALIDATION & SABPAISA PAYMENT WORKFLOW
 // ===========================================================================
-let cashfree;
-try {
-  cashfree = Cashfree({
-    mode: "production" // Cashfree keys are cfsk_ma_prod_ which signifies Production
-  });
-} catch (e) {
-  console.warn("Cashfree JS SDK failed to load or initialize.", e);
-}
+// (SabPaisa uses standard REST API v2 server-to-server endpoints returning checkoutUrls; no client-side SDK needed)
 
 // Payment Choice State Configuration
 window.selectedPaymentType = "online";
@@ -459,28 +452,19 @@ window.confirmPaymentChoice = function() {
     // Process manual booking details
     window.processManualBooking(leadData, submitBtn, originalBtnHTML);
   } else {
-    // Process Online Cashfree Checkout
+    // Process Online SabPaisa Checkout
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Initiating Payment...';
     
     // We try to call Vercel function first, if that fails we try PHP endpoint, if both fail we fallback to manual
-    window.createCashfreeOrder(leadData)
+    window.createSabPaisaOrder(leadData)
       .then(responseData => {
-        if (!responseData || !responseData.payment_session_id) {
-          throw new Error("Invalid payment session id returned from server");
+        if (!responseData || !responseData.checkoutUrl) {
+          throw new Error("Invalid checkout URL returned from server");
         }
         
-        // Success: Redirect user to Cashfree Checkout window
-        submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> Opening Checkout...';
-        if (cashfree) {
-          cashfree.checkout({
-            paymentSessionId: responseData.payment_session_id,
-            redirectTarget: "_self" // opens in same frame
-          });
-        } else {
-          // If Cashfree library was blocked/not loaded
-          alert("Payment gateway SDK is blocked. Redirecting to manual booking...");
-          window.processManualBooking(leadData, submitBtn, originalBtnHTML);
-        }
+        // Success: Redirect user to SabPaisa Checkout window
+        submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> Redirecting to Payment...';
+        window.location.href = responseData.checkoutUrl;
       })
       .catch(error => {
         console.error("Order creation failed, falling back to manual booking:", error);
@@ -489,15 +473,15 @@ window.confirmPaymentChoice = function() {
           error.message + "\n\n" +
           "How to resolve:\n" +
           "1. If you are hosting on GitHub Pages, backend scripts (Node/PHP) cannot execute. Please host your repo on Vercel or Netlify (both are free and support our serverless handlers).\n" +
-          "2. If you are already on Vercel/PHP hosting, ensure you configured the environment variable CASHFREE_CLIENT_SECRET in your hosting provider's dashboard."
+          "2. If you are already on Vercel/PHP hosting, ensure you configured the environment variables SABPAISA_API_KEY and SABPAISA_SECRET_KEY in your hosting provider's dashboard."
         );
         window.processManualBooking(leadData, submitBtn, originalBtnHTML);
       });
   }
 };
 
-// Securely invoke Backend Endpoints to generate order token
-window.createCashfreeOrder = async function(leadData) {
+// Securely invoke Backend Endpoints to generate SabPaisa checkout redirect URL
+window.createSabPaisaOrder = async function(leadData) {
   // Setup payload matching our api schemas
   const requestPayload = {
     amount: leadData.amount,
@@ -681,28 +665,20 @@ window.submitCustomPayment = function() {
     eventDetails: `Purpose: ${purpose}`
   };
 
-  // Trigger backend API call to generate Cashfree Order Token
-  window.createCashfreeOrder(paymentData)
+  // Trigger backend API call to generate SabPaisa Order redirect URL
+  window.createSabPaisaOrder(paymentData)
     .then(responseData => {
-      if (!responseData || !responseData.payment_session_id) {
+      if (!responseData || !responseData.checkoutUrl) {
         throw new Error("Invalid checkout response");
       }
       
-      payBtn.innerHTML = '<i class="fas fa-check-circle"></i> Opening Checkout...';
+      payBtn.innerHTML = '<i class="fas fa-check-circle"></i> Redirecting to Payment...';
       
       // Close custom payment modal before redirecting
       window.closeCustomPaymentModal();
       
-      if (cashfree) {
-        cashfree.checkout({
-          paymentSessionId: responseData.payment_session_id,
-          redirectTarget: "_self"
-        });
-      } else {
-        alert("Payment gateway SDK is blocked. Please try again or contact support.");
-        payBtn.disabled = false;
-        payBtn.innerHTML = originalBtnHTML;
-      }
+      // Redirect directly to SabPaisa Checkout Page
+      window.location.href = responseData.checkoutUrl;
     })
     .catch(error => {
       console.error("Custom order creation failed:", error);
@@ -711,7 +687,7 @@ window.submitCustomPayment = function() {
         error.message + "\n\n" +
         "How to resolve:\n" +
         "1. If you are hosting on GitHub Pages, backend scripts (Node/PHP) cannot execute. Please host your repo on Vercel or Netlify (both are free and support our serverless handlers).\n" +
-        "2. If you are already on Vercel/PHP hosting, ensure you configured the environment variable CASHFREE_CLIENT_SECRET in your hosting provider's dashboard."
+        "2. If you are already on Vercel/PHP hosting, ensure you configured the environment variables SABPAISA_API_KEY and SABPAISA_SECRET_KEY in your hosting provider's dashboard."
       );
       payBtn.disabled = false;
       payBtn.innerHTML = originalBtnHTML;
